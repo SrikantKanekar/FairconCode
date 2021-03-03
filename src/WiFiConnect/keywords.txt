@@ -1,0 +1,9 @@
+WiFiConnectAP KEYWORD1
+start KEYWORD2
+
+WiFiConnectSTA  KEYWORD1
+connect KEYWORD2
+
+WiFiConnectBoth KEYWORD1
+startAP KEYWORD2
+connectSTA  KEYWORD2

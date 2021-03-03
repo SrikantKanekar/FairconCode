@@ -1,0 +1,26 @@
+{
+    "configurations": [
+        {
+            "name": "Arduino",
+            "includePath": [
+                "${workspaceRoot}"
+            ],
+            "browse": {
+                "path": [
+                "C:/Users/Srikant/AppData/Local/Arduino15/packages",
+                "D:/Arduino/hardware",
+                "D:/Arduino/libraries",
+                "D:/Document/Arduino/libraries",
+                "D:/Projects/Faricon/Nodemcu/ArduinoCode/src"
+                ],
+                "limitSymbolsToIncludedHeaders": true,
+                "databaseFilename": ""
+            },
+            "forcedInclude": [],
+            "intelliSenseMode": "msvc-x64",
+            "cStandard": "c11",
+            "cppStandard": "c++17"
+        }
+    ],
+    "version": 4
+}
