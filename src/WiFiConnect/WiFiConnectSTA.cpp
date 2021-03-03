@@ -26,3 +26,7 @@ void WiFiConnectSTA::connect(){
     Serial.print("IP address is : ");
     Serial.println(WiFi.localIP());
 }
+
+uint8_t WiFiConnectSTA::status(){
+    return WiFi.status();
+}

@@ -1,11 +1,9 @@
 #include "Arduino.h"
-#include "WiFiConnectAP.h"
 #include "ESP8266WiFi.h"
+#include "WiFiConnectAP.h"
 
-WiFiConnectAP::WiFiConnectAP(char *ssid, char *password){
-    _ssid = ssid;
-    _password = password;
-}
+const char* _ssid = "FAIRCON";
+const char* _password = "12345678";
 
 void WiFiConnectAP::start(){
     Serial.println();
@@ -17,3 +15,4 @@ void WiFiConnectAP::start(){
     Serial.print("AP IP address is : ");
     Serial.println(WiFi.softAPIP());
 }
+

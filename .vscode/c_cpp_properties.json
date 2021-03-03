@@ -11,7 +11,7 @@
                 "D:/Arduino/hardware",
                 "D:/Arduino/libraries",
                 "D:/Document/Arduino/libraries",
-                "D:/Projects/Faricon/Nodemcu/ArduinoCode/src"
+                "D:/Projects/Faricon/Nodemcu/FairconCode/src"
                 ],
                 "limitSymbolsToIncludedHeaders": true,
                 "databaseFilename": ""

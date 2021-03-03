@@ -20,6 +20,7 @@ private:
 public:
     WiFiConnectSTA(char *ssid, char *password);
     void connect();
+    uint8_t status();
 };
 
 #endif

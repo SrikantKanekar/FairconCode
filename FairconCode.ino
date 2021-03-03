@@ -1,13 +1,23 @@
-#include "src/WiFiConnect/WiFiConnectBoth.h"
+#include "src/RestApi/RestApiServer.h"
+#include "src/WiFiConnect/WiFiConnectAP.h"
 
-WiFiConnectBoth myWiFi("FAIRCON", "12345678", "Z2 plus", "12345678");
+WiFiConnectAP myWiFi;
+RestApiServer restServer(1,1,1);
 
-void setup(){
+void setup(void) {
     Serial.begin(115200);
-    myWiFi.startAP();
-    myWiFi.connectSTA();
+    myWiFi.start();
 }
 
-void loop(){
+unsigned long previousMillis = 0;
+const long interval = 15000;
 
+void loop(void) {
+    restServer.handleClient();
+
+    unsigned long currentMillis = millis();
+    if (currentMillis - previousMillis > interval){
+        previousMillis = currentMillis;
+        restServer.setParameters(2,2,2);
+    }
 }

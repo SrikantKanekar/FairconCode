@@ -2,10 +2,11 @@
 #include "WiFiConnectBoth.h"
 #include "ESP8266WiFi.h"
 
-WiFiConnectBoth::WiFiConnectBoth(char *ap_ssid, char *ap_password, char *sta_ssid, char *sta_password){
+const char* _AP_ssid = "FAIRCON";
+const char* _AP_password = "12345678";
+
+WiFiConnectBoth::WiFiConnectBoth(char *sta_ssid, char *sta_password){
     WiFi.mode(WIFI_AP_STA);
-    _AP_ssid = ap_ssid;
-    _AP_password = ap_password;
     _STA_ssid = sta_ssid;
     _STA_password = sta_password;
 }
