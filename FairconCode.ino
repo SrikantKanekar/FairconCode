@@ -2,22 +2,32 @@
 #include "src/WiFiConnect/WiFiConnectAP.h"
 
 WiFiConnectAP myWiFi;
-RestApiServer restServer(1,1,1);
+RestApiServer Server;
+Data Data;
 
-void setup(void) {
+void setup(void)
+{
     Serial.begin(115200);
     myWiFi.start();
+    Server.init();
+    Data = Server.getData();
+    Server.printData(Data);
 }
 
 unsigned long previousMillis = 0;
-const long interval = 15000;
+const long interval = 5000;
 
-void loop(void) {
-    restServer.handleClient();
+void loop(void)
+{
+    Server.handleClient();
 
     unsigned long currentMillis = millis();
-    if (currentMillis - previousMillis > interval){
+    if (currentMillis - previousMillis > interval)
+    {
         previousMillis = currentMillis;
-        restServer.setParameters(2,2,2);
+        Server.set_HOME_Parameters(
+            Server.get_CONTROLLER_FanSpeed(),
+            Server.get_CONTROLLER_Temperature(),
+            Server.get_CONTROLLER_TecVoltage());
     }
 }
