@@ -1,9 +1,10 @@
-#include "src/RestApi/RestApiServer.h"
+#include "src/Structure.h"
+#include "src/RestApiServer.h"
 #include "src/WiFiConnect/WiFiConnectAP.h"
 
 WiFiConnectAP myWiFi;
 RestApiServer Server;
-Data Data;
+Structure Data;
 
 void setup(void)
 {
@@ -11,7 +12,6 @@ void setup(void)
     myWiFi.start();
     Server.init();
     Data = Server.getData();
-    Server.printData(Data);
 }
 
 unsigned long previousMillis = 0;

@@ -1,10 +1,10 @@
-#include <ESP8266WebServer.h>
-#include <ArduinoJson.h>
-#include <EEPROM.h>
 #include "RestApiServer.h"
 
+void handelModeChange();
+
 ESP8266WebServer RestServer(80);
-Data data;
+Cache cache;
+Structure data;
 
 void welcome()
 {
@@ -32,6 +32,7 @@ void GET_Controller()
     doc["fanSpeed"] = data.controller.fanSpeed;
     doc["temperature"] = data.controller.temperature;
     doc["tecVoltage"] = data.controller.tecVoltage;
+    doc["mode"] = data.mode;
 
     serializeJson(doc, output);
     RestServer.send(200, "application/json", output);
@@ -121,10 +122,39 @@ void PUT_TecVoltage()
     RestServer.send(200, "application/json", output);
 }
 
+void PUT_Mode()
+{
+    StaticJsonDocument<48> inputDoc;
+    StaticJsonDocument<48> outputDoc;
+    String input = RestServer.arg("plain");
+    String output;
+
+    DeserializationError error = deserializeJson(inputDoc, input);
+
+    if (!error)
+    {
+        data.mode = inputDoc["mode"];
+        Serial.println("");
+        Serial.print("Mode Updated : ");
+        Serial.println(data.mode);
+        outputDoc["response"] = "SUCCESS";
+        handelModeChange();
+    }
+    else
+    {
+        Serial.print(F("deserializeJson() failed: "));
+        Serial.println(error.f_str());
+        outputDoc["response"] = "Deserialization error";
+    }
+    serializeJson(outputDoc, output);
+    RestServer.send(200, "application/json", output);
+}
+
 void configure_routing()
 {
     RestServer.on("/", HTTP_GET, welcome);
     RestServer.on("/home/parameters", HTTP_GET, GET_Parameters);
+    RestServer.on("/home/mode", HTTP_PUT, PUT_Mode);
     RestServer.on("/controller/sync", HTTP_GET, GET_Controller);
     RestServer.on("/controller/fanSpeed", HTTP_PUT, PUT_FanSpeed);
     RestServer.on("/controller/temperature", HTTP_PUT, PUT_Temperature);
@@ -136,21 +166,12 @@ void RestApiServer::init()
     configure_routing();
     RestServer.begin();
     Serial.println("FAIRCON REST Server Started.");
-    
-    EEPROM.begin(30);
-    EEPROM.get(0, data);
-    Serial.println("FAIRCON data initialised");
+    data = cache.init();
 }
 
 void RestApiServer::handleClient()
 {
     RestServer.handleClient();
-}
-
-void RestApiServer::commit(){
-    EEPROM.put(0, data);
-    EEPROM.commit();  
-    Serial.println("Cache data Commited");
 }
 
 // Home Setters
@@ -178,46 +199,17 @@ float RestApiServer::get_CONTROLLER_TecVoltage()
     return data.controller.tecVoltage;
 }
 
-Data RestApiServer::getData(){
+Structure RestApiServer::getData(){
     return data;
 }
 
-void RestApiServer::printData(Data currentData)
-{
-    Serial.println("");
-    Serial.println("Home");
-    Serial.print("Fan Speed : ");
-    Serial.println(currentData.home.fanSpeed);
-    Serial.print("Temperature : ");
-    Serial.println(currentData.home.temperature);
-    Serial.print("Tec Voltage : ");
-    Serial.println(currentData.home.tecVoltage);
-
-    Serial.println("");
-    Serial.println("Controller");
-    Serial.print("Fan Speed : ");
-    Serial.println(currentData.controller.fanSpeed);
-    Serial.print("Temperature : ");
-    Serial.println(currentData.controller.temperature);
-    Serial.print("Tec Voltage : ");
-    Serial.println(currentData.controller.tecVoltage);
-
-    Serial.println("");
-    Serial.print("Mode : ");
-    Serial.println(currentData.mode);
-
-    Serial.println("");
-    Serial.print("Total Data Size : ");
-    Serial.println(sizeof(data));
-}
-
-bool isDataEqual(Data current, Data stored)
-{
-    return current.home.fanSpeed == stored.home.fanSpeed &&
-           current.home.temperature == stored.home.temperature &&
-           current.home.tecVoltage == stored.home.tecVoltage &&
-           current.controller.fanSpeed == stored.controller.fanSpeed &&
-           current.controller.temperature == stored.controller.temperature &&
-           current.controller.tecVoltage == stored.controller.tecVoltage &&
-           current.mode == stored.mode;
+void handelModeChange(){
+    if (data.mode == 0)
+    {
+        Serial.println("FAIRCON ON mode started");
+        cache.commit(data);        
+    } else if (data.mode == 2)
+    {
+        Serial.println("Started cooling");
+    }    
 }
