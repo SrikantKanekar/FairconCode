@@ -11,6 +11,17 @@ void welcome()
     RestServer.send(200, "text/html", "Welcome to FAIRCON");
 }
 
+void TEST_FAIRCON()
+{
+    StaticJsonDocument<48> doc;
+    String output;
+
+    doc["response"] = "SUCCESS";
+    
+    serializeJson(doc, output);
+    RestServer.send(200, "application/json", output);
+}
+
 void GET_Parameters()
 {
     StaticJsonDocument<48> doc;
@@ -155,6 +166,7 @@ void configure_routing()
     RestServer.on("/", HTTP_GET, welcome);
     RestServer.on("/home/parameters", HTTP_GET, GET_Parameters);
     RestServer.on("/home/mode", HTTP_PUT, PUT_Mode);
+    RestServer.on("/home/test", HTTP_GET, TEST_FAIRCON);
     RestServer.on("/controller/sync", HTTP_GET, GET_Controller);
     RestServer.on("/controller/fanSpeed", HTTP_PUT, PUT_FanSpeed);
     RestServer.on("/controller/temperature", HTTP_PUT, PUT_Temperature);
@@ -199,17 +211,20 @@ float RestApiServer::get_CONTROLLER_TecVoltage()
     return data.controller.tecVoltage;
 }
 
-Structure RestApiServer::getData(){
+Structure RestApiServer::getData()
+{
     return data;
 }
 
-void handelModeChange(){
+void handelModeChange()
+{
     if (data.mode == 0)
     {
         Serial.println("FAIRCON ON mode started");
-        cache.commit(data);        
-    } else if (data.mode == 2)
+        cache.commit(data);
+    }
+    else if (data.mode == 2)
     {
         Serial.println("Started cooling");
-    }    
+    }
 }
