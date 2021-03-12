@@ -15,4 +15,3 @@ void WiFiConnectAP::start(){
     Serial.print("AP IP address is : ");
     Serial.println(WiFi.softAPIP());
 }
-

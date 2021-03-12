@@ -1,17 +1,34 @@
 #include "src/Structure.h"
-#include "src/RestApiServer.h"
 #include "src/WiFiConnect/WiFiConnectAP.h"
+#include "src/RestApiServer.h"
+#include "src/LM35/LM35.h"
+#include "src/Tec/Tec.h"
+#include "src/Fan/Fan.h"
 
-WiFiConnectAP myWiFi;
-RestApiServer Server;
 Structure Data;
+WiFiConnectAP wiFi;
+RestApiServer server;
+LM35 roomTemperature(D1);
+LM35 tecTemperature(D2);
+Tec tec(D3, 0);
+Fan fan(D4, 0);
 
 void setup(void)
 {
     Serial.begin(115200);
-    myWiFi.start();
-    Server.init();
-    Data = Server.getData();
+    wiFi.start();
+    server.init();
+    Data = server.getData();
+}
+
+void handleFAIRCON(){
+    Data = server.getData();
+
+    roomTemperature.value();
+    tecTemperature.value();
+
+    fan.setSpeed(325);
+    tec.setVoltage(8.5);
 }
 
 unsigned long previousMillis = 0;
@@ -19,15 +36,12 @@ const long interval = 5000;
 
 void loop(void)
 {
-    Server.handleClient();
+    server.handleClient();
 
     unsigned long currentMillis = millis();
     if (currentMillis - previousMillis > interval)
     {
         previousMillis = currentMillis;
-        Server.set_HOME_Parameters(
-            Server.get_CONTROLLER_FanSpeed(),
-            Server.get_CONTROLLER_Temperature(),
-            Server.get_CONTROLLER_TecVoltage());
+        handleFAIRCON();
     }
 }
