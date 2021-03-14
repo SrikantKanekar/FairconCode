@@ -1,7 +1,7 @@
 #ifndef LM35_h
 #define LM35_h
 
-#include <Arduino.h>
+#include "Arduino.h"
 
 class LM35
 {

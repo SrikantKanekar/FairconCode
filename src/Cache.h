@@ -9,7 +9,7 @@ class Cache
 {
 public: 
     Cache(Faircon *Faircon);
-    void commit();
+    void save();
 };
 
 #endif

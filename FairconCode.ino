@@ -2,16 +2,19 @@
 #include "src/WiFiConnect/WiFiConnectAP.h"
 #include "src/RestApiServer.h"
 #include "src/Cache.h"
+#include "src/Function.h"
 #include "src/LM35/LM35.h"
 #include "src/Tec/Tec.h"
 #include "src/Fan/Fan.h"
 
-Faircon Faircon;
+Faircon faircon;
+Faircon previousData;
 WiFiConnectAP wiFi;
-Cache cache(&Faircon);
-RestApiServer server(&Faircon);
-LM35 roomTemperature(D1);
-LM35 tecTemperature(D2);
+Function func;
+Cache cache(&faircon);
+RestApiServer server(&faircon);
+LM35 roomTemp(D1);
+LM35 tecTemp(D2);
 Tec tec;
 Fan fan;
 
@@ -23,49 +26,69 @@ void setup(void)
     tec.init();
 }
 
-void checkRoomYemperature()
+void checkRoomTemperature()
 {
-    float requiredTemp = Faircon.controller.temperature;
-    float roomTemp = roomTemperature.value();
+    float required = faircon.controller.temperature;
+    float current = roomTemp.value();
 
-    if (roomTemp < requiredTemp)
+    if (current < required)
     {
     }
-    else if (roomTemp > requiredTemp)
+    else if (current > required)
     {
     }
 }
 
 void handelModeChange()
 {
-    if (Faircon.mode == IDLE)
+    if (faircon.mode == IDLE)
     {
         Serial.println("Started Idle mode");
-        // cache.commit();
+        //turn off fan and tec if its alredy on.
+        //save data to cache.
+
+        //cache.save();
     }
-    else if (Faircon.mode == FAN)
+    else if (faircon.mode == FAN)
     {
         Serial.println("Started Fan mode");
+        // turn off tec.
+        // turn on fan.
     }
-    else if (Faircon.mode == COOLING)
+    else if (faircon.mode == COOLING)
     {
         Serial.println("Started cooling");
+        // turn on tec and motor.
+        // set tec polarity to cooling.
+        // use PID for temperature control
+        // for decreasing temp, increase fan speed and tec voltage.
+        // for increasing temp, decrease fan speed and tec voltage.
+        // handle overheating.
+        // if overheating, increase fan speed and decrease tec voltage
     }
-    else if (Faircon.mode == HEATING)
+    else if (faircon.mode == HEATING)
     {
         Serial.println("Started Heating");
+        //turn on tec and motor.
+        //reverse tec polarity to heating.
     }
 }
 
-void handleFAIRCON()
+void handelControllerChange()
 {
-    // Faircon = server.getData();
 
-    checkRoomYemperature();
-    tecTemperature.value();
+}
 
-    fan.setSpeed(325);
-    tec.setVoltage(8.5);
+void handleFaircon()
+{
+    if (func.hasModeChanged(faircon, previousData))
+    {
+        handelModeChange();
+    }
+    if (func.hasControllerChanged(faircon, previousData))
+    {
+        handelControllerChange();
+    }
 }
 
 unsigned long previousMillis = 0;
@@ -74,11 +97,11 @@ const long interval = 5000;
 void loop(void)
 {
     server.handleClient();
-
     unsigned long currentMillis = millis();
     if (currentMillis - previousMillis > interval)
     {
         previousMillis = currentMillis;
-        handleFAIRCON();
+        handleFaircon();
+        previousData = faircon;
     }
 }

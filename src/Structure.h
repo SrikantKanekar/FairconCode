@@ -3,15 +3,15 @@
 
 struct Home
 {
-    uint16_t fanSpeed = 350;
-    float temperature = 25;
-    float tecVoltage = 12;
+    uint16_t fanSpeed = 300;
+    float temperature = 15;
+    float tecVoltage = 0;
 };
 struct Controller
 {
-    uint16_t fanSpeed = 350;
+    uint16_t fanSpeed = 300;
     float temperature = 25;
-    float tecVoltage = 12;
+    float tecVoltage = 0;
 };
 enum Mode
 {

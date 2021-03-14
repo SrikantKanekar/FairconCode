@@ -1,9 +1,7 @@
 #include "RestApiServer.h"
 
-void handelModeChange();
-
 ESP8266WebServer RestServer(80);
-Faircon *faircon;
+Faircon *Data;
 
 void welcome()
 {
@@ -26,9 +24,9 @@ void GET_Parameters()
     StaticJsonDocument<48> doc;
     String output;
 
-    doc["fanSpeed"] = (*faircon).home.fanSpeed;
-    doc["temperature"] = (*faircon).home.temperature;
-    doc["tecVoltage"] = (*faircon).home.tecVoltage;
+    doc["fanSpeed"] = (*Data).home.fanSpeed;
+    doc["temperature"] = (*Data).home.temperature;
+    doc["tecVoltage"] = (*Data).home.tecVoltage;
 
     serializeJson(doc, output);
     RestServer.send(200, "application/json", output);
@@ -39,10 +37,10 @@ void GET_Controller()
     StaticJsonDocument<48> doc;
     String output;
 
-    doc["fanSpeed"] = (*faircon).controller.fanSpeed;
-    doc["temperature"] = (*faircon).controller.temperature;
-    doc["tecVoltage"] = (*faircon).controller.tecVoltage;
-    doc["mode"] = (*faircon).mode;
+    doc["fanSpeed"] = (*Data).controller.fanSpeed;
+    doc["temperature"] = (*Data).controller.temperature;
+    doc["tecVoltage"] = (*Data).controller.tecVoltage;
+    doc["mode"] = (*Data).mode;
 
     serializeJson(doc, output);
     RestServer.send(200, "application/json", output);
@@ -59,10 +57,10 @@ void PUT_FanSpeed()
 
     if (!error)
     {
-        (*faircon).controller.fanSpeed = inputDoc["fanSpeed"];
+        (*Data).controller.fanSpeed = inputDoc["fanSpeed"];
         Serial.println("");
         Serial.print("FanSpeed Updated : ");
-        Serial.print((*faircon).controller.fanSpeed);
+        Serial.print((*Data).controller.fanSpeed);
         Serial.println(" RPM");
         outputDoc["response"] = "SUCCESS";
     }
@@ -87,10 +85,10 @@ void PUT_Temperature()
 
     if (!error)
     {
-        (*faircon).controller.temperature = inputDoc["temperature"];
+        (*Data).controller.temperature = inputDoc["temperature"];
         Serial.println("");
         Serial.print("Temperature Updated : ");
-        Serial.print((*faircon).controller.temperature);
+        Serial.print((*Data).controller.temperature);
         Serial.println(" C");
         outputDoc["response"] = "SUCCESS";
     }
@@ -115,10 +113,10 @@ void PUT_TecVoltage()
 
     if (!error)
     {
-        (*faircon).controller.tecVoltage = inputDoc["tecVoltage"];
+        (*Data).controller.tecVoltage = inputDoc["tecVoltage"];
         Serial.println("");
         Serial.print("Tec Voltage Updated : ");
-        Serial.print((*faircon).controller.tecVoltage);
+        Serial.print((*Data).controller.tecVoltage);
         Serial.println(" V");
         outputDoc["response"] = "SUCCESS";
     }
@@ -143,12 +141,11 @@ void PUT_Mode()
 
     if (!error)
     {
-        (*faircon).mode = inputDoc["mode"];
+        (*Data).mode = inputDoc["mode"];
         Serial.println("");
         Serial.print("Mode Updated : ");
-        Serial.println((*faircon).mode);
+        Serial.println((*Data).mode);
         outputDoc["response"] = "SUCCESS";
-        // handelModeChange();
     }
     else
     {
@@ -173,7 +170,7 @@ void configure_routing()
 }
 
 RestApiServer::RestApiServer(Faircon* Faircon){
-    faircon = Faircon;
+    Data = Faircon;
     configure_routing();
     RestServer.begin();
     Serial.println("FAIRCON REST Server Started.");

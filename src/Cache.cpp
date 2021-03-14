@@ -1,6 +1,7 @@
 #include "Cache.h"
 
 Faircon *data;
+Controller storedData;
 
 void printData();
 
@@ -9,19 +10,36 @@ Cache::Cache(Faircon *Faircon)
     data = Faircon;
 
     EEPROM.begin(30);
-    EEPROM.get(0, *data);
+    EEPROM.get(0, (*data).controller);
+
+    storedData = (*data).controller;
 
     Serial.begin(115200);
     Serial.println("FAIRCON data initialised");
     printData();
 }
 
-void Cache::commit()
+bool isDataEqual()
 {
-    EEPROM.put(0, *data);
-    EEPROM.commit();
-    Serial.println("FAIRCON Data Commited");
-    printData();
+    return (*data).controller.fanSpeed == storedData.fanSpeed &&
+           (*data).controller.temperature == storedData.temperature &&
+           (*data).controller.tecVoltage == storedData.tecVoltage;
+}
+
+void Cache::save()
+{
+    if (isDataEqual())
+    {
+        EEPROM.put(0, (*data).controller);
+        EEPROM.commit();
+        storedData = (*data).controller;
+        Serial.println("FAIRCON Data Saved");
+        printData();
+    }
+    else
+    {
+        Serial.println("Data is same. Not commited");
+    }
 }
 
 void printData()
@@ -50,16 +68,5 @@ void printData()
 
     Serial.println("");
     Serial.print("Total Data Size : ");
-    Serial.println(sizeof((*data)));
-}
-
-bool isDataEqual(Faircon current, Faircon stored)
-{
-    return current.home.fanSpeed == stored.home.fanSpeed &&
-           current.home.temperature == stored.home.temperature &&
-           current.home.tecVoltage == stored.home.tecVoltage &&
-           current.controller.fanSpeed == stored.controller.fanSpeed &&
-           current.controller.temperature == stored.controller.temperature &&
-           current.controller.tecVoltage == stored.controller.tecVoltage &&
-           current.mode == stored.mode;
+    Serial.println(sizeof(storedData));
 }
