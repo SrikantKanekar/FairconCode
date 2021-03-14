@@ -15,17 +15,25 @@ struct Controller
 };
 enum Mode
 {
-    ON,
+    IDLE,
     FAN,
     COOLING,
     HEATING
 };
 
-struct Structure
+enum Status
+{
+    STABLE,
+    TRANSITION,
+    OVERHEATING
+};
+
+struct Faircon
 {
     Home home;
     Controller controller;
-    Mode mode = ON;
+    Mode mode = IDLE;
+    Status status = STABLE;
 };
 
 #endif

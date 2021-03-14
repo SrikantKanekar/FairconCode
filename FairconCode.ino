@@ -1,30 +1,67 @@
 #include "src/Structure.h"
 #include "src/WiFiConnect/WiFiConnectAP.h"
 #include "src/RestApiServer.h"
+#include "src/Cache.h"
 #include "src/LM35/LM35.h"
 #include "src/Tec/Tec.h"
 #include "src/Fan/Fan.h"
 
-Structure Data;
+Faircon Faircon;
 WiFiConnectAP wiFi;
-RestApiServer server;
+Cache cache(&Faircon);
+RestApiServer server(&Faircon);
 LM35 roomTemperature(D1);
 LM35 tecTemperature(D2);
-Tec tec(D3, 0);
-Fan fan(D4, 0);
+Tec tec;
+Fan fan;
 
 void setup(void)
 {
     Serial.begin(115200);
     wiFi.start();
-    server.init();
-    Data = server.getData();
+    fan.init();
+    tec.init();
 }
 
-void handleFAIRCON(){
-    Data = server.getData();
+void checkRoomYemperature()
+{
+    float requiredTemp = Faircon.controller.temperature;
+    float roomTemp = roomTemperature.value();
 
-    roomTemperature.value();
+    if (roomTemp < requiredTemp)
+    {
+    }
+    else if (roomTemp > requiredTemp)
+    {
+    }
+}
+
+void handelModeChange()
+{
+    if (Faircon.mode == IDLE)
+    {
+        Serial.println("Started Idle mode");
+        // cache.commit();
+    }
+    else if (Faircon.mode == FAN)
+    {
+        Serial.println("Started Fan mode");
+    }
+    else if (Faircon.mode == COOLING)
+    {
+        Serial.println("Started cooling");
+    }
+    else if (Faircon.mode == HEATING)
+    {
+        Serial.println("Started Heating");
+    }
+}
+
+void handleFAIRCON()
+{
+    // Faircon = server.getData();
+
+    checkRoomYemperature();
     tecTemperature.value();
 
     fan.setSpeed(325);

@@ -1,7 +1,9 @@
 #include "Tec.h"
 
-uint8_t _tecPin;
-float _voltage;
+uint8_t _tecPin = D0;
+uint8_t _spdtPin = D1;
+uint8_t _dpdtPin = D2;
+float _voltage = 0;
 
 void printVoltage()
 {
@@ -20,10 +22,12 @@ void printVoltage()
 */
 void updateVoltage()
 {
-    uint16_t dutyCycle = 255 * _voltage / 12; // Above equation
-    if (dutyCycle > 255){
+    uint16_t dutyCycle = 255 * _voltage / 12;
+    if (dutyCycle > 255)
+    {
         dutyCycle = 255;
-    }else if (dutyCycle < 0)
+    }
+    else if (dutyCycle < 0)
     {
         dutyCycle = 0;
     }
@@ -31,15 +35,39 @@ void updateVoltage()
     printVoltage();
 }
 
-Tec::Tec(uint8_t pin, float initialVoltage)
+void Tec::init()
 {
-    _tecPin = pin;
-    _voltage = initialVoltage;
+    pinMode(_spdtPin, OUTPUT);
+    digitalWrite(_spdtPin, LOW);
+
+    pinMode(_dpdtPin, OUTPUT);
+    digitalWrite(_dpdtPin, LOW);
+
     updateVoltage();
+}
+
+void Tec::start()
+{
+    digitalWrite(_spdtPin, HIGH);
 }
 
 void Tec::setVoltage(float voltage)
 {
     _voltage = voltage;
     updateVoltage();
+}
+
+void Tec::cool()
+{
+    digitalWrite(_dpdtPin, LOW);
+}
+
+void Tec::heat()
+{
+    digitalWrite(_dpdtPin, HIGH);
+}
+
+void Tec::stop()
+{
+    digitalWrite(_spdtPin, LOW);
 }
