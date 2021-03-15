@@ -9,6 +9,7 @@ public:
     void init();
     void start();
     void setSpeed(uint16_t speed);
+    bool isRunning();
     void stop();
 };
 

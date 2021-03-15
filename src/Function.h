@@ -7,8 +7,12 @@
 class Function
 {
 public:
-    bool hasControllerChanged(Faircon current, Faircon old);
-    bool hasModeChanged(Faircon current, Faircon old);
+    Function(Faircon *Current, Faircon *Old);
+    bool hasControllerChanged();
+    bool hasControllerFanSpeedChanged();
+    bool hasControllerTempChanged();
+    bool hasControllerVoltageChanged();
+    bool hasModeChanged();
 };
 
 #endif

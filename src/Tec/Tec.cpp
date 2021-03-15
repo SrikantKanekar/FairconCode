@@ -67,6 +67,22 @@ void Tec::heat()
     digitalWrite(_dpdtPin, HIGH);
 }
 
+bool Tec::isRunning()
+{
+    return digitalRead(_spdtPin) == HIGH;
+}
+
+bool Tec::isCooling()
+{
+    return digitalRead(_dpdtPin) == LOW;
+}
+
+void Tec::slow()
+{
+    _voltage = _voltage/2;
+    updateVoltage();
+}
+
 void Tec::stop()
 {
     digitalWrite(_spdtPin, LOW);

@@ -11,6 +11,9 @@ public:
     void setVoltage(float voltage);
     void cool();
     void heat();
+    bool isRunning();
+    bool isCooling();
+    void slow();
     void stop();
 };
 

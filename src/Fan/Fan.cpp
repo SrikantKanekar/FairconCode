@@ -51,6 +51,10 @@ void Fan::setSpeed(uint16_t speed)
     updateSpeed();
 }
 
+bool Fan::isRunning(){
+    return digitalRead(_relayPin) == HIGH;
+}
+
 void Fan::stop()
 {
     digitalWrite(_relayPin, LOW);

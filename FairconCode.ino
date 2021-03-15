@@ -8,11 +8,11 @@
 #include "src/Fan/Fan.h"
 
 Faircon faircon;
-Faircon previousData;
 WiFiConnectAP wiFi;
-Function func;
 Cache cache(&faircon);
+Faircon previousData = faircon;
 RestApiServer server(&faircon);
+Function func(&faircon, &previousData);
 LM35 roomTemp(D1);
 LM35 tecTemp(D2);
 Tec tec;
@@ -26,7 +26,79 @@ void setup(void)
     tec.init();
 }
 
-void checkRoomTemperature()
+void handelModeChange()
+{
+    if (faircon.mode == IDLE)
+    {
+        Serial.println("Started Idle mode");
+        if (fan.isRunning() || tec.isRunning())
+        {
+            fan.stop();
+            tec.stop();
+        }
+        cache.save();
+    }
+    else if (faircon.mode == FAN)
+    {
+        Serial.println("Started Fan mode");
+        if (tec.isRunning())
+        {
+            tec.stop();
+        }
+        if (!fan.isRunning())
+        {
+            fan.start();
+        }
+    }
+    else if (faircon.mode == COOLING)
+    {
+        Serial.println("Started cooling");
+        if (!fan.isRunning() || !tec.isRunning())
+        {
+            fan.start();
+            tec.start();
+        }
+        if (!tec.isCooling())
+        {
+            tec.cool();
+        }
+        // use PID for temperature control
+        // for decreasing temp, increase fan speed and tec voltage.
+        // for increasing temp, decrease fan speed and tec voltage.
+        // handle overheating.
+        // if overheating, increase fan speed and decrease tec voltage
+    }
+    else if (faircon.mode == HEATING)
+    {
+        Serial.println("Started Heating");
+        if (!fan.isRunning() || !tec.isRunning())
+        {
+            fan.start();
+            tec.start();
+        }
+        if (tec.isCooling())
+        {
+            tec.heat();
+        }
+    }
+}
+
+void handelControllerChange()
+{
+    if (func.hasControllerFanSpeedChanged())
+    {
+        fan.setSpeed(faircon.controller.fanSpeed);
+    }
+    if (func.hasControllerTempChanged())
+    {
+    }
+    if (func.hasControllerVoltageChanged())
+    {
+        tec.setVoltage(faircon.controller.tecVoltage);
+    }
+}
+
+void handlePID()
 {
     float required = faircon.controller.temperature;
     float current = roomTemp.value();
@@ -39,69 +111,46 @@ void checkRoomTemperature()
     }
 }
 
-void handelModeChange()
+void handleOverHeating()
 {
-    if (faircon.mode == IDLE)
+    if (faircon.mode == COOLING)
     {
-        Serial.println("Started Idle mode");
-        //turn off fan and tec if its alredy on.
-        //save data to cache.
-
-        //cache.save();
+        float temp = tecTemp.value();
+        if (temp > 80)
+        {
+            tec.stop();
+        }
+        else if (temp > 70)
+        {
+            tec.stop();
+        }
     }
-    else if (faircon.mode == FAN)
-    {
-        Serial.println("Started Fan mode");
-        // turn off tec.
-        // turn on fan.
-    }
-    else if (faircon.mode == COOLING)
-    {
-        Serial.println("Started cooling");
-        // turn on tec and motor.
-        // set tec polarity to cooling.
-        // use PID for temperature control
-        // for decreasing temp, increase fan speed and tec voltage.
-        // for increasing temp, decrease fan speed and tec voltage.
-        // handle overheating.
-        // if overheating, increase fan speed and decrease tec voltage
-    }
-    else if (faircon.mode == HEATING)
-    {
-        Serial.println("Started Heating");
-        //turn on tec and motor.
-        //reverse tec polarity to heating.
-    }
-}
-
-void handelControllerChange()
-{
-
 }
 
 void handleFaircon()
 {
-    if (func.hasModeChanged(faircon, previousData))
+    if (func.hasModeChanged())
     {
         handelModeChange();
     }
-    if (func.hasControllerChanged(faircon, previousData))
+    if (func.hasControllerChanged())
     {
         handelControllerChange();
     }
+    handlePID();
+    handleOverHeating();
 }
 
 unsigned long previousMillis = 0;
-const long interval = 5000;
-
+const long interval = 10000;
 void loop(void)
 {
     server.handleClient();
     unsigned long currentMillis = millis();
     if (currentMillis - previousMillis > interval)
     {
-        previousMillis = currentMillis;
         handleFaircon();
         previousData = faircon;
+        previousMillis = currentMillis;
     }
 }

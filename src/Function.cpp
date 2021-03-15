@@ -1,13 +1,37 @@
 #include "Function.h"
 
-bool Function::hasControllerChanged(Faircon current, Faircon old)
+Faircon *current;
+Faircon *old;
+
+Function::Function(Faircon *Current, Faircon *Old)
 {
-    return current.controller.fanSpeed != old.controller.fanSpeed ||
-           current.controller.temperature != old.controller.temperature ||
-           current.controller.tecVoltage != old.controller.tecVoltage;
+    current = current;
+    old = Old;
 }
 
-bool Function::hasModeChanged(Faircon current, Faircon old)
+bool Function::hasControllerChanged()
 {
-    return current.mode != old.mode;
+    return (*current).controller.fanSpeed != (*old).controller.fanSpeed ||
+           (*current).controller.temperature != (*old).controller.temperature ||
+           (*current).controller.tecVoltage != (*old).controller.tecVoltage;
+}
+
+bool Function::hasControllerFanSpeedChanged()
+{
+    return (*current).controller.fanSpeed != (*old).controller.fanSpeed;
+}
+
+bool Function::hasControllerTempChanged()
+{
+    return (*current).controller.temperature != (*old).controller.temperature;
+}
+
+bool Function::hasControllerVoltageChanged()
+{
+    return (*current).controller.tecVoltage != (*old).controller.tecVoltage;
+}
+
+bool Function::hasModeChanged()
+{
+    return (*current).mode != (*old).mode;
 }
