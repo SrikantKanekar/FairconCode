@@ -10,9 +10,7 @@ void welcome() {
 void TEST_FAIRCON() {
     StaticJsonDocument<48> doc;
     String output;
-
     doc["response"] = "SUCCESS";
-
     serializeJson(doc, output);
     RestServer.send(200, "application/json", output);
 }
@@ -24,6 +22,7 @@ void GET_Parameters() {
     doc["fanSpeed"] = (*Data).home.fanSpeed;
     doc["temperature"] = (*Data).home.temperature;
     doc["tecVoltage"] = (*Data).home.tecVoltage;
+    doc["status"] = (*Data).status;
 
     serializeJson(doc, output);
     RestServer.send(200, "application/json", output);
@@ -95,7 +94,6 @@ void PUT_TecVoltage() {
     StaticJsonDocument<48> outputDoc;
     String input = RestServer.arg("plain");
     String output;
-
     DeserializationError error = deserializeJson(inputDoc, input);
 
     if (!error) {
@@ -119,7 +117,6 @@ void PUT_Mode() {
     StaticJsonDocument<48> outputDoc;
     String input = RestServer.arg("plain");
     String output;
-
     DeserializationError error = deserializeJson(inputDoc, input);
 
     if (!error) {
@@ -152,7 +149,7 @@ RestApiServer::RestApiServer(Faircon* Faircon) {
     Data = Faircon;
     configure_routing();
     RestServer.begin();
-    Serial.println("FAIRCON REST Server Started.");
+    Serial.println("FAIRCON Server started.");
 }
 
 void RestApiServer::handleClient() {

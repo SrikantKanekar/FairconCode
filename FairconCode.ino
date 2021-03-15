@@ -28,7 +28,6 @@ unsigned long previousMillis = 0;
 const long interval = 10000;
 
 void setup(void) {
-    Serial.begin(115200);
     wiFi.start();
     fan.init();
     tec.init();
@@ -44,6 +43,7 @@ void loop(void) {
     }
 }
 
+// FAIRCON loop, executed every 10 seconds(will be reduced in future).
 void handleFaircon() {
     if (func.hasModeChanged()) {
         handelModeChange();
@@ -94,6 +94,7 @@ void handelModeChange() {
     }
 }
 
+// Will be executed when user changes the controller configuration.
 void handelControllerChange() {
     if (func.hasControllerFanSpeedChanged()) {
         fan.setSpeed(faircon.controller.fanSpeed);
@@ -105,9 +106,11 @@ void handelControllerChange() {
     }
 }
 
+// In cooling and heating mode, bring the roomTemp closer to requiredTemp
+// with precision of 0.5C.
+// This code will be executed only if FAIRCON is not in OVERHEATING state
 void handlePID() {
-    if (faircon.mode == COOLING ||
-        faircon.mode == HEATING && faircon.status != OVERHEATING) {
+    if (faircon.mode == COOLING || faircon.mode == HEATING && faircon.status != OVERHEATING) {
         float required = faircon.controller.temperature;
         float current = roomTemp.value();
 
@@ -125,6 +128,7 @@ void handlePID() {
     }
 }
 
+// This code handles the OVERHEATING state of FAIRCON.
 void handleOverHeating() {
     if (faircon.mode == COOLING) {
         float temp = tecTemp.value();
