@@ -3,12 +3,13 @@
 
 #include "Arduino.h"
 
-class Fan
-{
-public:
+class Fan {
+   public:
     void init();
     void start();
     void setSpeed(uint16_t speed);
+    void faster();
+    void slower();
     bool isRunning();
     void stop();
 };

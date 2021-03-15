@@ -7,13 +7,13 @@
 #ifndef RestApiServer_h
 #define RestApiServer_h
 
-#include <ESP8266WebServer.h>
 #include <ArduinoJson.h>
+#include <ESP8266WebServer.h>
+
 #include "Structure.h"
 
-class RestApiServer
-{
-public:
+class RestApiServer {
+   public:
     RestApiServer(Faircon *Faircon);
     void handleClient();
 };

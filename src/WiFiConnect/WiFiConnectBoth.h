@@ -11,12 +11,12 @@
 #include "Arduino.h"
 #include "ESP8266WiFi.h"
 
-class WiFiConnectBoth
-{
-private:
+class WiFiConnectBoth {
+   private:
     char *_STA_ssid;
     char *_STA_password;
-public:
+
+   public:
     WiFiConnectBoth(char *sta_ssid, char *sta_password);
     void startAP();
     void connectSTA();

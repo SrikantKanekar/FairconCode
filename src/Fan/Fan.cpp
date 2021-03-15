@@ -4,8 +4,7 @@ uint8_t _fanPin = D0;
 uint8_t _relayPin = D1;
 uint16_t _speed = 300;
 
-void printSpeed()
-{
+void printSpeed() {
     Serial.print("Fan Speed :");
     Serial.println(_speed);
 }
@@ -18,44 +17,46 @@ void printSpeed()
  (y - 250)/100 = (x - 400)/100
              y = x - 150 
 */
-void updateSpeed()
-{
+void updateSpeed() {
     uint16_t dutyCycle = _speed - 150;
-    if (dutyCycle > 255)
-    {
+    if (dutyCycle > 255) {
         dutyCycle = 255;
-    }
-    else if (dutyCycle < 0)
-    {
+    } else if (dutyCycle < 0) {
         dutyCycle = 0;
     }
     analogWrite(_fanPin, dutyCycle);
     printSpeed();
 }
 
-void Fan::init()
-{
+void Fan::init() {
     pinMode(_relayPin, OUTPUT);
     digitalWrite(_relayPin, LOW);
     updateSpeed();
 }
 
-void Fan::start()
-{
+void Fan::start() {
     digitalWrite(_relayPin, HIGH);
 }
 
-void Fan::setSpeed(uint16_t speed)
-{
+void Fan::setSpeed(uint16_t speed) {
     _speed = speed;
     updateSpeed();
 }
 
-bool Fan::isRunning(){
+void Fan::faster() {
+    _speed = _speed + 20;
+    updateSpeed();
+}
+
+void Fan::slower() {
+    _speed = _speed - 20;
+    updateSpeed();
+}
+
+bool Fan::isRunning() {
     return digitalRead(_relayPin) == HIGH;
 }
 
-void Fan::stop()
-{
+void Fan::stop() {
     digitalWrite(_relayPin, LOW);
 }

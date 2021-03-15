@@ -4,9 +4,8 @@
 #include "Arduino.h"
 #include "Structure.h"
 
-class Function
-{
-public:
+class Function {
+   public:
     Function(Faircon *Current, Faircon *Old);
     bool hasControllerChanged();
     bool hasControllerFanSpeedChanged();

@@ -1,26 +1,23 @@
 #include "RestApiServer.h"
 
 ESP8266WebServer RestServer(80);
-Faircon *Data;
+Faircon* Data;
 
-void welcome()
-{
+void welcome() {
     RestServer.send(200, "text/html", "Welcome to FAIRCON");
 }
 
-void TEST_FAIRCON()
-{
+void TEST_FAIRCON() {
     StaticJsonDocument<48> doc;
     String output;
 
     doc["response"] = "SUCCESS";
-    
+
     serializeJson(doc, output);
     RestServer.send(200, "application/json", output);
 }
 
-void GET_Parameters()
-{
+void GET_Parameters() {
     StaticJsonDocument<48> doc;
     String output;
 
@@ -32,8 +29,7 @@ void GET_Parameters()
     RestServer.send(200, "application/json", output);
 }
 
-void GET_Controller()
-{
+void GET_Controller() {
     StaticJsonDocument<48> doc;
     String output;
 
@@ -46,8 +42,7 @@ void GET_Controller()
     RestServer.send(200, "application/json", output);
 }
 
-void PUT_FanSpeed()
-{
+void PUT_FanSpeed() {
     StaticJsonDocument<48> inputDoc;
     StaticJsonDocument<48> outputDoc;
     String input = RestServer.arg("plain");
@@ -55,17 +50,14 @@ void PUT_FanSpeed()
 
     DeserializationError error = deserializeJson(inputDoc, input);
 
-    if (!error)
-    {
+    if (!error) {
         (*Data).controller.fanSpeed = inputDoc["fanSpeed"];
         Serial.println("");
         Serial.print("FanSpeed Updated : ");
         Serial.print((*Data).controller.fanSpeed);
         Serial.println(" RPM");
         outputDoc["response"] = "SUCCESS";
-    }
-    else
-    {
+    } else {
         Serial.print(F("deserializeJson() failed: "));
         Serial.println(error.f_str());
         outputDoc["response"] = "Deserialization error";
@@ -74,8 +66,7 @@ void PUT_FanSpeed()
     RestServer.send(200, "application/json", output);
 }
 
-void PUT_Temperature()
-{
+void PUT_Temperature() {
     StaticJsonDocument<48> inputDoc;
     StaticJsonDocument<48> outputDoc;
     String input = RestServer.arg("plain");
@@ -83,17 +74,14 @@ void PUT_Temperature()
 
     DeserializationError error = deserializeJson(inputDoc, input);
 
-    if (!error)
-    {
+    if (!error) {
         (*Data).controller.temperature = inputDoc["temperature"];
         Serial.println("");
         Serial.print("Temperature Updated : ");
         Serial.print((*Data).controller.temperature);
         Serial.println(" C");
         outputDoc["response"] = "SUCCESS";
-    }
-    else
-    {
+    } else {
         Serial.print(F("deserializeJson() failed: "));
         Serial.println(error.f_str());
         outputDoc["response"] = "Deserialization error";
@@ -102,8 +90,7 @@ void PUT_Temperature()
     RestServer.send(200, "application/json", output);
 }
 
-void PUT_TecVoltage()
-{
+void PUT_TecVoltage() {
     StaticJsonDocument<48> inputDoc;
     StaticJsonDocument<48> outputDoc;
     String input = RestServer.arg("plain");
@@ -111,17 +98,14 @@ void PUT_TecVoltage()
 
     DeserializationError error = deserializeJson(inputDoc, input);
 
-    if (!error)
-    {
+    if (!error) {
         (*Data).controller.tecVoltage = inputDoc["tecVoltage"];
         Serial.println("");
         Serial.print("Tec Voltage Updated : ");
         Serial.print((*Data).controller.tecVoltage);
         Serial.println(" V");
         outputDoc["response"] = "SUCCESS";
-    }
-    else
-    {
+    } else {
         Serial.print(F("deserializeJson() failed: "));
         Serial.println(error.f_str());
         outputDoc["response"] = "Deserialization error";
@@ -130,8 +114,7 @@ void PUT_TecVoltage()
     RestServer.send(200, "application/json", output);
 }
 
-void PUT_Mode()
-{
+void PUT_Mode() {
     StaticJsonDocument<48> inputDoc;
     StaticJsonDocument<48> outputDoc;
     String input = RestServer.arg("plain");
@@ -139,16 +122,13 @@ void PUT_Mode()
 
     DeserializationError error = deserializeJson(inputDoc, input);
 
-    if (!error)
-    {
+    if (!error) {
         (*Data).mode = inputDoc["mode"];
         Serial.println("");
         Serial.print("Mode Updated : ");
         Serial.println((*Data).mode);
         outputDoc["response"] = "SUCCESS";
-    }
-    else
-    {
+    } else {
         Serial.print(F("deserializeJson() failed: "));
         Serial.println(error.f_str());
         outputDoc["response"] = "Deserialization error";
@@ -157,8 +137,7 @@ void PUT_Mode()
     RestServer.send(200, "application/json", output);
 }
 
-void configure_routing()
-{
+void configure_routing() {
     RestServer.on("/", HTTP_GET, welcome);
     RestServer.on("/home/parameters", HTTP_GET, GET_Parameters);
     RestServer.on("/home/mode", HTTP_PUT, PUT_Mode);
@@ -169,14 +148,13 @@ void configure_routing()
     RestServer.on("/controller/tecVoltage", HTTP_PUT, PUT_TecVoltage);
 }
 
-RestApiServer::RestApiServer(Faircon* Faircon){
+RestApiServer::RestApiServer(Faircon* Faircon) {
     Data = Faircon;
     configure_routing();
     RestServer.begin();
     Serial.println("FAIRCON REST Server Started.");
 }
 
-void RestApiServer::handleClient()
-{
+void RestApiServer::handleClient() {
     RestServer.handleClient();
 }

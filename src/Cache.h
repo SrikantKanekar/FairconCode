@@ -5,9 +5,8 @@
 #include "EEPROM.h"
 #include "Structure.h"
 
-class Cache
-{
-public: 
+class Cache {
+   public:
     Cache(Faircon *Faircon);
     void save();
 };

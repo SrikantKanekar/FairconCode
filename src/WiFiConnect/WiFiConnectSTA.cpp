@@ -1,22 +1,22 @@
-#include "Arduino.h"
 #include "WiFiConnectSTA.h"
+
+#include "Arduino.h"
 #include "ESP8266WiFi.h"
 
-WiFiConnectSTA::WiFiConnectSTA(char *ssid, char *password){
+WiFiConnectSTA::WiFiConnectSTA(char *ssid, char *password) {
     _ssid = ssid;
     _password = password;
 }
 
-void WiFiConnectSTA::connect(){
+void WiFiConnectSTA::connect() {
     Serial.println();
     Serial.print("Connecting to ");
     Serial.println(_ssid);
-    
+
     WiFi.mode(WIFI_STA);
     WiFi.begin(_ssid, _password);
-    
-    while (WiFi.status() != WL_CONNECTED)
-    {
+
+    while (WiFi.status() != WL_CONNECTED) {
         delay(500);
         Serial.print(".");
     }
@@ -27,6 +27,6 @@ void WiFiConnectSTA::connect(){
     Serial.println(WiFi.localIP());
 }
 
-uint8_t WiFiConnectSTA::status(){
+uint8_t WiFiConnectSTA::status() {
     return WiFi.status();
 }

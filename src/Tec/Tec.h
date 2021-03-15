@@ -3,9 +3,8 @@
 
 #include "Arduino.h"
 
-class Tec
-{
-public:
+class Tec {
+   public:
     void init();
     void start();
     void setVoltage(float voltage);
@@ -13,7 +12,8 @@ public:
     void heat();
     bool isRunning();
     bool isCooling();
-    void slow();
+    void faster();
+    void slower();
     void stop();
 };
 

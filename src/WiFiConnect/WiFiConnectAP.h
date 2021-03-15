@@ -12,9 +12,8 @@
 #include "Arduino.h"
 #include "ESP8266WiFi.h"
 
-class WiFiConnectAP
-{
-public:
+class WiFiConnectAP {
+   public:
     void start();
 };
 

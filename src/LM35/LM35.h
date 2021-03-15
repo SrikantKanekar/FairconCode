@@ -3,11 +3,11 @@
 
 #include "Arduino.h"
 
-class LM35
-{
-private:
+class LM35 {
+   private:
     int _pin;
-public:
+
+   public:
     LM35(int pin);
     float value();
 };
