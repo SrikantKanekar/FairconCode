@@ -57,6 +57,10 @@ bool Fan::isRunning() {
     return digitalRead(_relayPin) == HIGH;
 }
 
+bool Fan::isNotRunning() {
+    return digitalRead(_relayPin) == LOW;
+}
+
 void Fan::stop() {
     digitalWrite(_relayPin, LOW);
 }

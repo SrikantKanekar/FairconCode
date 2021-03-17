@@ -11,6 +11,7 @@ class Fan {
     void faster();
     void slower();
     bool isRunning();
+    bool isNotRunning();
     void stop();
 };
 

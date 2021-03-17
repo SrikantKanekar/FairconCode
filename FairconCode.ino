@@ -7,6 +7,7 @@
 #include "src/Tec/Tec.h"
 #include "src/WiFiConnect/WiFiConnectAP.h"
 
+// Function definations
 void handleFaircon();
 void handelModeChange();
 void handelControllerChange();
@@ -33,8 +34,10 @@ void setup(void) {
     tec.init();
 }
 
+// handleFaircon() is executed with some delay to reduce the load on the cpu.
 void loop(void) {
     server.handleClient();
+
     currentMillis = millis();
     if (currentMillis - previousMillis > interval) {
         handleFaircon();
@@ -43,7 +46,7 @@ void loop(void) {
     }
 }
 
-// FAIRCON loop, executed every 10 seconds(will be reduced in future).
+// This function is executed every 10 seconds(will be reduced in future).
 void handleFaircon() {
     if (func.hasModeChanged()) {
         handelModeChange();
@@ -51,40 +54,43 @@ void handleFaircon() {
     if (func.hasControllerChanged()) {
         handelControllerChange();
     }
-    handlePID();
+
+    checkState();
+    handleStableState();
     handleOverHeating();
+    handleTempTransition();
 }
 
 // Executed everytime user changes the Mode.
 void handelModeChange() {
     Serial.print("FAIRCON Mode Changed : ");
+
     if (faircon.mode == IDLE) {
         Serial.println("IDLE");
         if (fan.isRunning() || tec.isRunning()) {
             fan.stop();
             tec.stop();
         }
-        cache.save();
     } else if (faircon.mode == FAN) {
         Serial.println("FAN");
         if (tec.isRunning()) {
             tec.stop();
         }
-        if (!fan.isRunning()) {
+        if (fan.isNotRunning()) {
             fan.start();
         }
     } else if (faircon.mode == COOLING) {
         Serial.println("COOLING");
-        if (!fan.isRunning() || !tec.isRunning()) {
+        if (fan.isNotRunning() || tec.isNotRunning()) {
             fan.start();
             tec.start();
         }
-        if (!tec.isCooling()) {
+        if (tec.isHeatinng()) {
             tec.cool();
         }
     } else if (faircon.mode == HEATING) {
         Serial.println("HEATING");
-        if (!fan.isRunning() || !tec.isRunning()) {
+        if (fan.isNotRunning() || tec.isNotRunning()) {
             fan.start();
             tec.start();
         }
@@ -104,44 +110,61 @@ void handelControllerChange() {
     if (func.hasControllerVoltageChanged()) {
         tec.setVoltage(faircon.controller.tecVoltage);
     }
+    cache.save();
 }
 
-// In cooling and heating mode, bring the roomTemp closer to requiredTemp
-// with precision of 0.5C.
-// This code will be executed only if FAIRCON is not in OVERHEATING state
-void handlePID() {
-    if (faircon.mode == COOLING || faircon.mode == HEATING && faircon.status != OVERHEATING) {
-        float required = faircon.controller.temperature;
-        float current = roomTemp.value();
-
-        if (current > required + 0.5) {
-            fan.faster();
-            tec.slower();
-            faircon.status = TRANSITION;
-        } else if (current < required - 0.5) {
-            fan.slower();
-            tec.faster();
-            faircon.status = TRANSITION;
+void checkState() {
+    if (faircon.mode == COOLING || faircon.mode == HEATING) {
+        float requiredTemp = faircon.controller.temperature;
+        float roomTemperature = roomTemp.value();
+        float tecTemperature = tecTemp.value();
+        if (tecTemperature > 80) {
+            faircon.status = TEC_OVERHEATING;
+        } else if (tecTemperature > 70) {
+            faircon.status = TEC_HEATING;
         } else {
-            faircon.status = STABLE;
+            if (roomTemperature > requiredTemp + 0.5) {
+                faircon.status = TRANSITION_DEC;
+            } else if (roomTemperature < requiredTemp - 0.5) {
+                faircon.status = TRANSITION_INC;
+            } else {
+                faircon.status = STABLE;
+            }
         }
+    } else {
+        faircon.status = STABLE;
+    }
+}
+
+void handleStableState() {
+    if (faircon.status = STABLE) {
+        fan.setSpeed(faircon.controller.fanSpeed);
+        tec.setVoltage(faircon.controller.tecVoltage);
     }
 }
 
 // This code handles the OVERHEATING state of FAIRCON.
 void handleOverHeating() {
     if (faircon.mode == COOLING) {
-        float temp = tecTemp.value();
-        if (temp > 80) {
+        if (faircon.status = TEC_OVERHEATING) {
             tec.stop();
             fan.faster();
-            faircon.status = OVERHEATING;
-        } else if (temp > 70) {
+        } else if (faircon.status = TEC_HEATING) {
             tec.slower();
             fan.faster();
-            faircon.status = OVERHEATING;
-        } else {
-            faircon.status = STABLE;
         }
+    }
+}
+
+// In cooling and heating mode, bring the roomTemp closer to requiredTemp
+// with precision of 0.5C.
+// This code will be executed only if FAIRCON is not in OVERHEATING state
+void handleTempTransition() {
+    if (faircon.status = TRANSITION_DEC) {
+        fan.slower();
+        tec.faster();
+    } else if (faircon.status = TRANSITION_INC) {
+        fan.faster();
+        tec.slower();
     }
 }

@@ -10,10 +10,12 @@ class Tec {
     void setVoltage(float voltage);
     void cool();
     void heat();
-    bool isRunning();
-    bool isCooling();
     void faster();
     void slower();
+    bool isRunning();
+    bool isNotRunning();
+    bool isCooling();
+    bool isHeating();
     void stop();
 };
 
