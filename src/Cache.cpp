@@ -4,6 +4,7 @@ Faircon *data;
 Controller storedData;
 
 void printData();
+bool isDataEqual();
 
 Cache::Cache(Faircon *Faircon) {
     data = Faircon;
@@ -18,12 +19,7 @@ Cache::Cache(Faircon *Faircon) {
     printData();
 }
 
-bool isDataEqual() {
-    return (*data).controller.fanSpeed == storedData.fanSpeed &&
-           (*data).controller.temperature == storedData.temperature &&
-           (*data).controller.tecVoltage == storedData.tecVoltage;
-}
-
+// Cache will be updated only if data is changed.
 void Cache::save() {
     if (isDataEqual()) {
         EEPROM.put(0, (*data).controller);
@@ -34,6 +30,12 @@ void Cache::save() {
     } else {
         Serial.println("Data is same. Not commited");
     }
+}
+
+bool isDataEqual() {
+    return (*data).controller.fanSpeed == storedData.fanSpeed &&
+           (*data).controller.temperature == storedData.temperature &&
+           (*data).controller.tecVoltage == storedData.tecVoltage;
 }
 
 void printData() {

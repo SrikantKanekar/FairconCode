@@ -3,10 +3,7 @@
 float temperature;
 float reading;
 
-void printTemperature() {
-    Serial.print("LM35 temperature value = ");
-    Serial.println(temperature);
-}
+void printTemperature();
 
 LM35::LM35(int pin) {
     _pin = pin;
@@ -18,4 +15,9 @@ float LM35::value() {
     temperature = (reading * 500) / 1023;
     printTemperature();
     return temperature;
+}
+
+void printTemperature() {
+    Serial.print("LM35 temperature value = ");
+    Serial.println(temperature);
 }

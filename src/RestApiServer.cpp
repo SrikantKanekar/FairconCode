@@ -4,7 +4,7 @@ ESP8266WebServer RestServer(80);
 Faircon* Data;
 
 void welcome() {
-    RestServer.send(200, "text/html", "Welcome to FAIRCON");
+    RestServer.send(200, "text/html", "FAIRCON");
 }
 
 void TEST_FAIRCON() {

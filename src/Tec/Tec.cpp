@@ -5,30 +5,8 @@ uint8_t _spdtPin = D1;
 uint8_t _dpdtPin = D2;
 float _voltage = 0;
 
-void printVoltage() {
-    Serial.print("Tec voltage : ");
-    Serial.println(_voltage);
-}
-
-/*
- voltage   dutyCycle
-  12V        255
-   0V         0
-   x          y
-   y  =  x
-  255   12
-   y = 255 * x / 12 
-*/
-void updateVoltage() {
-    uint16_t dutyCycle = 255 * _voltage / 12;
-    if (dutyCycle > 255) {
-        dutyCycle = 255;
-    } else if (dutyCycle < 0) {
-        dutyCycle = 0;
-    }
-    analogWrite(_tecPin, dutyCycle);
-    printVoltage();
-}
+void printVoltage();
+void updateVoltage();
 
 void Tec::init() {
     pinMode(_spdtPin, OUTPUT);
@@ -47,6 +25,25 @@ void Tec::start() {
 void Tec::setVoltage(float voltage) {
     _voltage = voltage;
     updateVoltage();
+}
+
+/*
+ Voltage   dutyCycle
+   12V        255
+    0V         0
+    x          y
+  y/255 = x/12
+      y = 255 * x / 12 
+*/
+void updateVoltage() {
+    uint16_t dutyCycle = 255 * _voltage / 12;  //Above equation
+    if (dutyCycle > 255) {
+        dutyCycle = 255;
+    } else if (dutyCycle < 0) {
+        dutyCycle = 0;
+    }
+    analogWrite(_tecPin, dutyCycle);
+    printVoltage();
 }
 
 void Tec::cool() {
@@ -85,4 +82,9 @@ bool Tec::isHeating() {
 
 void Tec::stop() {
     digitalWrite(_spdtPin, LOW);
+}
+
+void printVoltage() {
+    Serial.print("Tec voltage : ");
+    Serial.println(_voltage);
 }
