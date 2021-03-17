@@ -1,7 +1,7 @@
 #include "Fan.h"
 
-uint8_t _fanPin = D0;
-uint8_t _relayPin = D1;
+uint8_t _fanPin = D6;
+uint8_t _relayPin = D2;
 uint16_t _speed = 300;
 
 void printSpeed();

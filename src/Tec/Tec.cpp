@@ -1,8 +1,8 @@
 #include "Tec.h"
 
-uint8_t _tecPin = D0;
-uint8_t _spdtPin = D1;
-uint8_t _dpdtPin = D2;
+uint8_t _TecPin = D5;
+uint8_t _spdtPin = D0;
+uint8_t _dpdtPin = D1;
 float _voltage = 0;
 
 void printVoltage();
@@ -42,7 +42,7 @@ void updateVoltage() {
     } else if (dutyCycle < 0) {
         dutyCycle = 0;
     }
-    analogWrite(_tecPin, dutyCycle);
+    analogWrite(_TecPin, dutyCycle);
     printVoltage();
 }
 

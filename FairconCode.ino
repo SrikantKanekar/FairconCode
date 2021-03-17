@@ -1,16 +1,15 @@
 #include "src/Cache.h"
+#include "src/Data.h"
 #include "src/Fan/Fan.h"
 #include "src/Function.h"
-#include "src/LM35/LM35.h"
+#include "src/Sensor/Sensor.h"
 #include "src/RestApiServer.h"
-#include "src/Data.h"
 #include "src/Tec/Tec.h"
 #include "src/WiFiConnect/WiFiConnectAP.h"
 
 // Function definations
 void handleFaircon();
 void handelModeChange();
-void handelControllerChange();
 void checkState();
 void handleStableState();
 void handleOverHeating();
@@ -22,8 +21,7 @@ Cache cache(&faircon);
 Faircon previousData = faircon;
 RestApiServer server(&faircon);
 Function func(&faircon, &previousData);
-LM35 roomTemp(D1);
-LM35 tecTemp(D2);
+Sensor sensor;
 Tec tec;
 Fan fan;
 unsigned long currentMillis = 0;
@@ -34,6 +32,7 @@ void setup(void) {
     wiFi.start();
     fan.init();
     tec.init();
+    sensor.init();
 }
 
 // handleFaircon() is executed with some delay to reduce the load on the cpu.
@@ -54,13 +53,14 @@ void handleFaircon() {
         handelModeChange();
     }
     if (func.hasControllerChanged()) {
-        handelControllerChange();
+        cache.save();
     }
 
     checkState();
     handleStableState();
     handleOverHeating();
     handleTempTransition();
+    
 }
 
 // Executed everytime user changes the Mode.
@@ -102,19 +102,6 @@ void handelModeChange() {
     }
 }
 
-// Will be executed when user changes the controller configuration.
-void handelControllerChange() {
-    if (func.hasControllerFanSpeedChanged()) {
-        fan.setSpeed(faircon.controller.fanSpeed);
-    }
-    if (func.hasControllerTempChanged()) {
-    }
-    if (func.hasControllerVoltageChanged()) {
-        tec.setVoltage(faircon.controller.tecVoltage);
-    }
-    cache.save();
-}
-
 // Will check the statue of the Faircon
 // First it will check if the Tec modules are overheating.
 // If it doesn't, then it will check for Transition state.
@@ -122,8 +109,8 @@ void handelControllerChange() {
 void checkState() {
     if (faircon.mode == COOLING || faircon.mode == HEATING) {
         float requiredTemp = faircon.controller.temperature;
-        float roomTemperature = roomTemp.value();
-        float tecTemperature = tecTemp.value();
+        float roomTemperature = sensor.roomValue();
+        float tecTemperature = sensor.tecValue();
         if (tecTemperature > 80) {
             faircon.status = TEC_OVERHEATING;
         } else if (tecTemperature > 70) {
