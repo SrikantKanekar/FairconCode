@@ -1,5 +1,5 @@
-#ifndef Structure_h
-#define Structure_h
+#ifndef Data_h
+#define Data_h
 
 // Values obtained from Sensors and Microcontroller, and displayed to the users in real time.
 struct Home {

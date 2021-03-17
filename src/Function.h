@@ -2,7 +2,7 @@
 #define FUNCTION_h
 
 #include "Arduino.h"
-#include "Structure.h"
+#include "Data.h"
 
 class Function {
    public:

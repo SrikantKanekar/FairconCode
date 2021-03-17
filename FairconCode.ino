@@ -3,7 +3,7 @@
 #include "src/Function.h"
 #include "src/LM35/LM35.h"
 #include "src/RestApiServer.h"
-#include "src/Structure.h"
+#include "src/Data.h"
 #include "src/Tec/Tec.h"
 #include "src/WiFiConnect/WiFiConnectAP.h"
 

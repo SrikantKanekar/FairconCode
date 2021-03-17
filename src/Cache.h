@@ -3,7 +3,7 @@
 
 #include "Arduino.h"
 #include "EEPROM.h"
-#include "Structure.h"
+#include "Data.h"
 
 class Cache {
    public:

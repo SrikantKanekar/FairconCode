@@ -10,7 +10,7 @@
 #include <ArduinoJson.h>
 #include <ESP8266WebServer.h>
 
-#include "Structure.h"
+#include "Data.h"
 
 class RestApiServer {
    public:
