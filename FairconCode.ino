@@ -46,7 +46,7 @@ void loop(void) {
     }
 }
 
-// This function is executed every 10 seconds(will be reduced in future).
+// This function is execute after every 10 seconds.
 void handleFaircon() {
     if (func.hasModeChanged()) {
         handelModeChange();
@@ -85,7 +85,7 @@ void handelModeChange() {
             fan.start();
             tec.start();
         }
-        if (tec.isHeatinng()) {
+        if (tec.isHeating()) {
             tec.cool();
         }
     } else if (faircon.mode == HEATING) {
@@ -113,6 +113,10 @@ void handelControllerChange() {
     cache.save();
 }
 
+// Will check the statue of the Faircon
+// First it will check if the Tec modules are overheating.
+// If it doesn't, then it will check for Transition state.
+// Else it will be in stable state.
 void checkState() {
     if (faircon.mode == COOLING || faircon.mode == HEATING) {
         float requiredTemp = faircon.controller.temperature;
@@ -136,6 +140,7 @@ void checkState() {
     }
 }
 
+// If Faircon is in stable state, it will set the fan speed and tec as requested by the user.
 void handleStableState() {
     if (faircon.status = STABLE) {
         fan.setSpeed(faircon.controller.fanSpeed);
@@ -156,9 +161,6 @@ void handleOverHeating() {
     }
 }
 
-// In cooling and heating mode, bring the roomTemp closer to requiredTemp
-// with precision of 0.5C.
-// This code will be executed only if FAIRCON is not in OVERHEATING state
 void handleTempTransition() {
     if (faircon.status = TRANSITION_DEC) {
         fan.slower();
