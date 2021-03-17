@@ -11,8 +11,10 @@
 void handleFaircon();
 void handelModeChange();
 void handelControllerChange();
-void handlePID();
+void checkState();
+void handleStableState();
 void handleOverHeating();
+void handleTempTransition();
 
 Faircon faircon;
 WiFiConnectAP wiFi;
