@@ -12,10 +12,7 @@ class Tec {
     void heat();
     void faster();
     void slower();
-    bool isRunning();
-    bool isNotRunning();
-    bool isCooling();
-    bool isHeating();
+    bool isTecRunning();
     void stop();
 };
 

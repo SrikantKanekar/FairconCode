@@ -8,6 +8,7 @@
 class Cache {
    public:
     Cache(Faircon *Faircon);
+    void init();
     void save();
 };
 

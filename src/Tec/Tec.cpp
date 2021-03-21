@@ -1,8 +1,8 @@
 #include "Tec.h"
 
-uint8_t _TecPin = D5;
 uint8_t _spdtPin = D0;
 uint8_t _dpdtPin = D1;
+uint8_t _TecPin = D5;
 float _voltage = 0;
 
 void printVoltage();
@@ -14,12 +14,12 @@ void Tec::init() {
 
     pinMode(_dpdtPin, OUTPUT);
     digitalWrite(_dpdtPin, LOW);
-
-    updateVoltage();
+    Serial.println("Tec            --> Tec Class Initialized");
 }
 
 void Tec::start() {
     digitalWrite(_spdtPin, HIGH);
+    Serial.println("Tec            --> Tec Started");
 }
 
 void Tec::setVoltage(float voltage) {
@@ -48,43 +48,40 @@ void updateVoltage() {
 
 void Tec::cool() {
     digitalWrite(_dpdtPin, LOW);
+    Serial.println("Tec            --> Tec Cooling Started");
 }
 
 void Tec::heat() {
     digitalWrite(_dpdtPin, HIGH);
+    Serial.println("Tec            --> Tec Heating Started");
 }
 
 void Tec::faster() {
     _voltage = _voltage + 2;
+    if (_voltage > 12) {
+        _voltage = 12;
+    }
     updateVoltage();
 }
 
 void Tec::slower() {
     _voltage = _voltage - 2;
+    if (_voltage < 0) {
+        _voltage = 0;
+    }
     updateVoltage();
 }
 
-bool Tec::isRunning() {
+bool Tec::isTecRunning(){
     return digitalRead(_spdtPin) == HIGH;
-}
-
-bool Tec::isNotRunning() {
-    return digitalRead(_spdtPin) == LOW;
-}
-
-bool Tec::isCooling() {
-    return digitalRead(_dpdtPin) == LOW;
-}
-
-bool Tec::isHeating() {
-    return digitalRead(_dpdtPin) == HIGH;
 }
 
 void Tec::stop() {
     digitalWrite(_spdtPin, LOW);
+    Serial.println("Tec            --> Tec Stopped");
 }
 
 void printVoltage() {
-    Serial.print("Tec voltage : ");
+    Serial.print("Tec            --> Tec voltage updated : ");
     Serial.println(_voltage);
 }

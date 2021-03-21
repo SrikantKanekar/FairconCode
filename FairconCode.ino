@@ -1,9 +1,8 @@
 #include "src/Cache.h"
 #include "src/Data.h"
 #include "src/Fan/Fan.h"
-#include "src/Function.h"
-#include "src/Sensor/Sensor.h"
 #include "src/RestApiServer.h"
+#include "src/Sensor/Sensor.h"
 #include "src/Tec/Tec.h"
 #include "src/WiFiConnect/WiFiConnectAP.h"
 
@@ -12,15 +11,14 @@ void handleFaircon();
 void handelModeChange();
 void checkState();
 void handleStableState();
-void handleOverHeating();
-void handleTempTransition();
+void handleTransitionState();
+void handleOverHeatingState();
 
 Faircon faircon;
+Faircon previousData;
 WiFiConnectAP wiFi;
 Cache cache(&faircon);
-Faircon previousData = faircon;
 RestApiServer server(&faircon);
-Function func(&faircon, &previousData);
 Sensor sensor;
 Tec tec;
 Fan fan;
@@ -29,10 +27,16 @@ unsigned long previousMillis = 0;
 const long interval = 10000;
 
 void setup(void) {
+    Serial.begin(115200);
+    Serial.println();
+    Serial.println("///////////////////////START//////////////////////");
     wiFi.start();
+    cache.init();
+    server.init();
+    sensor.init();
     fan.init();
     tec.init();
-    sensor.init();
+    previousData = faircon;
 }
 
 // handleFaircon() is executed with some delay to reduce the load on the cpu.
@@ -41,62 +45,46 @@ void loop(void) {
 
     currentMillis = millis();
     if (currentMillis - previousMillis > interval) {
+        digitalWrite(D4, HIGH);
+        Serial.println("<------------------LOOP---------------->");
         handleFaircon();
         previousData = faircon;
         previousMillis = currentMillis;
+        digitalWrite(D4, LOW);
     }
 }
 
 // This function is execute after every 10 seconds.
 void handleFaircon() {
-    if (func.hasModeChanged()) {
-        handelModeChange();
-    }
-    if (func.hasControllerChanged()) {
-        cache.save();
-    }
-
+    handelModeChange();
+    cache.save();
     checkState();
     handleStableState();
-    handleOverHeating();
-    handleTempTransition();
-    
+    handleTransitionState();
+    handleOverHeatingState();
 }
 
 // Executed everytime user changes the Mode.
 void handelModeChange() {
-    Serial.print("FAIRCON Mode Changed : ");
-
-    if (faircon.mode == IDLE) {
-        Serial.println("IDLE");
-        if (fan.isRunning() || tec.isRunning()) {
+    if (faircon.mode != previousData.mode) {
+        Serial.print("Main           --> Faircon Mode Changed : ");
+        if (faircon.mode == IDLE) {
+            Serial.println("IDLE");
             fan.stop();
             tec.stop();
-        }
-    } else if (faircon.mode == FAN) {
-        Serial.println("FAN");
-        if (tec.isRunning()) {
+        } else if (faircon.mode == FAN) {
+            Serial.println("FAN");
             tec.stop();
-        }
-        if (fan.isNotRunning()) {
             fan.start();
-        }
-    } else if (faircon.mode == COOLING) {
-        Serial.println("COOLING");
-        if (fan.isNotRunning() || tec.isNotRunning()) {
+        } else if (faircon.mode == COOLING) {
+            Serial.println("COOLING");
             fan.start();
             tec.start();
-        }
-        if (tec.isHeating()) {
             tec.cool();
-        }
-    } else if (faircon.mode == HEATING) {
-        Serial.println("HEATING");
-        if (fan.isNotRunning() || tec.isNotRunning()) {
+        } else if (faircon.mode == HEATING) {
+            Serial.println("HEATING");
             fan.start();
             tec.start();
-        }
-        if (tec.isCooling()) {
             tec.heat();
         }
     }
@@ -107,10 +95,12 @@ void handelModeChange() {
 // If it doesn't, then it will check for Transition state.
 // Else it will be in stable state.
 void checkState() {
+    Serial.print("Main           --> CheckState ->");
     if (faircon.mode == COOLING || faircon.mode == HEATING) {
         float requiredTemp = faircon.controller.temperature;
         float roomTemperature = sensor.roomValue();
         float tecTemperature = sensor.tecValue();
+
         if (tecTemperature > 80) {
             faircon.status = TEC_OVERHEATING;
         } else if (tecTemperature > 70) {
@@ -124,38 +114,54 @@ void checkState() {
                 faircon.status = STABLE;
             }
         }
+        Serial.print(" requiredTemp: ");
+        Serial.print(requiredTemp);
+
+        Serial.print(", roomTemperature: ");
+        Serial.print(roomTemperature);
+
+        Serial.print(", tecTemperature: ");
+        Serial.print(tecTemperature);
     } else {
         faircon.status = STABLE;
     }
+    Serial.print(" Status: ");
+    Serial.println(faircon.status);
 }
 
 // If Faircon is in stable state, it will set the fan speed and tec as requested by the user.
 void handleStableState() {
-    if (faircon.status = STABLE) {
+    if (faircon.status == STABLE) {
         fan.setSpeed(faircon.controller.fanSpeed);
         tec.setVoltage(faircon.controller.tecVoltage);
     }
 }
 
-// This code handles the OVERHEATING state of FAIRCON.
-void handleOverHeating() {
-    if (faircon.mode == COOLING) {
-        if (faircon.status = TEC_OVERHEATING) {
-            tec.stop();
+void handleTransitionState() {
+    if (faircon.mode == COOLING || faircon.mode == HEATING) {
+        if (faircon.status == TRANSITION_DEC) {
+            fan.slower();
+            tec.faster();
+        } else if (faircon.status == TRANSITION_INC) {
             fan.faster();
-        } else if (faircon.status = TEC_HEATING) {
             tec.slower();
-            fan.faster();
         }
     }
 }
 
-void handleTempTransition() {
-    if (faircon.status = TRANSITION_DEC) {
-        fan.slower();
-        tec.faster();
-    } else if (faircon.status = TRANSITION_INC) {
-        fan.faster();
-        tec.slower();
+// This code handles the OVERHEATING state of FAIRCON.
+void handleOverHeatingState() {
+    if (faircon.mode == COOLING || faircon.mode == HEATING) {
+        if (faircon.status == TEC_OVERHEATING) {
+            tec.stop();
+            fan.faster();
+        } else if (faircon.status == TEC_HEATING) {
+            tec.slower();
+            fan.faster();
+        } else {
+            if (!tec.isTecRunning()) {
+                tec.start();
+            }
+        }
     }
 }

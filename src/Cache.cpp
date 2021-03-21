@@ -3,32 +3,46 @@
 Faircon *data;
 Controller storedData;
 
-void printData();
+void initializeData();
 bool isDataEqual();
+void printData();
 
 Cache::Cache(Faircon *Faircon) {
     data = Faircon;
+}
 
-    EEPROM.begin(30);
-    EEPROM.get(0, (*data).controller);
+void Cache::init() {
+    EEPROM.begin(20);
+    EEPROM.get(0, storedData);
 
-    storedData = (*data).controller;
+    if (storedData.fanSpeed == 65535) {
+        initializeData();
+    } else {
+        (*data).controller = storedData;
+    }
 
-    Serial.begin(115200);
-    Serial.println("FAIRCON data initialised");
+    Serial.print("Cache          --> Cache Class Initialized");
     printData();
+}
+
+//Data is null, initializing Cache
+void initializeData() {
+    EEPROM.put(0, (*data).controller);
+    EEPROM.commit();
+    storedData = (*data).controller;
+    Serial.println("Cache          --> Cache Initialized for the first time");
 }
 
 // Cache will be updated only if data is changed.
 void Cache::save() {
-    if (isDataEqual()) {
+    if (!isDataEqual()) {
         EEPROM.put(0, (*data).controller);
         EEPROM.commit();
         storedData = (*data).controller;
-        Serial.println("FAIRCON Data Saved");
+        Serial.print("Cache          --> Cache Updated");
         printData();
     } else {
-        Serial.println("Data is same. Not commited");
+        Serial.println("Cache          --> Cache not updated, data is Same");
     }
 }
 
@@ -39,29 +53,12 @@ bool isDataEqual() {
 }
 
 void printData() {
-    Serial.println("");
-    Serial.println("Home");
-    Serial.print("Fan Speed : ");
-    Serial.println((*data).home.fanSpeed);
-    Serial.print("Temperature : ");
-    Serial.println((*data).home.temperature);
-    Serial.print("Tec Voltage : ");
-    Serial.println((*data).home.tecVoltage);
-
-    Serial.println("");
-    Serial.println("Controller");
-    Serial.print("Fan Speed : ");
-    Serial.println((*data).controller.fanSpeed);
-    Serial.print("Temperature : ");
-    Serial.println((*data).controller.temperature);
-    Serial.print("Tec Voltage : ");
-    Serial.println((*data).controller.tecVoltage);
-
-    Serial.println("");
-    Serial.print("Mode : ");
-    Serial.println((*data).mode);
-
-    Serial.println("");
-    Serial.print("Total Data Size : ");
+    Serial.print(", FanSpeed: ");
+    Serial.print((*data).controller.fanSpeed);
+    Serial.print(", Temperature: ");
+    Serial.print((*data).controller.temperature);
+    Serial.print(", TecVoltage: ");
+    Serial.print((*data).controller.tecVoltage);
+    Serial.print(", Cache Size: ");
     Serial.println(sizeof(storedData));
 }

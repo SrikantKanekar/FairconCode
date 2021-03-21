@@ -51,8 +51,7 @@ void PUT_FanSpeed() {
 
     if (!error) {
         (*Data).controller.fanSpeed = inputDoc["fanSpeed"];
-        Serial.println("");
-        Serial.print("FanSpeed Updated : ");
+        Serial.print("RestApiServer  --> FanSpeed Updated : ");
         Serial.print((*Data).controller.fanSpeed);
         Serial.println(" RPM");
         outputDoc["response"] = "SUCCESS";
@@ -75,8 +74,7 @@ void PUT_Temperature() {
 
     if (!error) {
         (*Data).controller.temperature = inputDoc["temperature"];
-        Serial.println("");
-        Serial.print("Temperature Updated : ");
+        Serial.print("RestApiServer  --> Temperature Updated : ");
         Serial.print((*Data).controller.temperature);
         Serial.println(" C");
         outputDoc["response"] = "SUCCESS";
@@ -98,8 +96,7 @@ void PUT_TecVoltage() {
 
     if (!error) {
         (*Data).controller.tecVoltage = inputDoc["tecVoltage"];
-        Serial.println("");
-        Serial.print("Tec Voltage Updated : ");
+        Serial.print("RestApiServer  --> Tec Voltage Updated : ");
         Serial.print((*Data).controller.tecVoltage);
         Serial.println(" V");
         outputDoc["response"] = "SUCCESS";
@@ -121,8 +118,7 @@ void PUT_Mode() {
 
     if (!error) {
         (*Data).mode = inputDoc["mode"];
-        Serial.println("");
-        Serial.print("Mode Updated : ");
+        Serial.print("RestApiServer  --> Mode Updated : ");
         Serial.println((*Data).mode);
         outputDoc["response"] = "SUCCESS";
     } else {
@@ -147,9 +143,12 @@ void configure_routing() {
 
 RestApiServer::RestApiServer(Faircon* Faircon) {
     Data = Faircon;
+}
+
+void RestApiServer::init() {
     configure_routing();
     RestServer.begin();
-    Serial.println("FAIRCON Server started.");
+    Serial.println("RestApiServer  --> Faircon Server started.");
 }
 
 void RestApiServer::handleClient() {

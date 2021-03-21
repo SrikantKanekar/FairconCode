@@ -10,8 +10,6 @@ class Fan {
     void setSpeed(uint16_t speed);
     void faster();
     void slower();
-    bool isRunning();
-    bool isNotRunning();
     void stop();
 };
 
