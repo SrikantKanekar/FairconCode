@@ -27,6 +27,10 @@ void Tec::setVoltage(float voltage) {
     updateVoltage();
 }
 
+float Tec::getVoltage() {
+    return _voltage;
+}
+
 /*
  Voltage   dutyCycle
    12V        255
@@ -72,7 +76,7 @@ void Tec::slower() {
     updateVoltage();
 }
 
-bool Tec::isTecRunning(){
+bool Tec::isTecRunning() {
     return digitalRead(_spdtPin) == HIGH;
 }
 

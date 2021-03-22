@@ -8,6 +8,7 @@ class Tec {
     void init();
     void start();
     void setVoltage(float voltage);
+    float getVoltage();
     void cool();
     void heat();
     void faster();

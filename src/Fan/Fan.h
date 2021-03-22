@@ -8,6 +8,7 @@ class Fan {
     void init();
     void start();
     void setSpeed(uint16_t speed);
+    uint16_t getSpeed();
     void faster();
     void slower();
     void stop();

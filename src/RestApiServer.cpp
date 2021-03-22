@@ -16,12 +16,13 @@ void TEST_FAIRCON() {
 }
 
 void GET_Parameters() {
-    StaticJsonDocument<48> doc;
+    StaticJsonDocument<90> doc;
     String output;
 
     doc["fanSpeed"] = (*Data).home.fanSpeed;
     doc["temperature"] = (*Data).home.temperature;
     doc["tecVoltage"] = (*Data).home.tecVoltage;
+    doc["mode"] = (*Data).mode;
     doc["status"] = (*Data).status;
 
     serializeJson(doc, output);
@@ -35,7 +36,6 @@ void GET_Controller() {
     doc["fanSpeed"] = (*Data).controller.fanSpeed;
     doc["temperature"] = (*Data).controller.temperature;
     doc["tecVoltage"] = (*Data).controller.tecVoltage;
-    doc["mode"] = (*Data).mode;
 
     serializeJson(doc, output);
     RestServer.send(200, "application/json", output);

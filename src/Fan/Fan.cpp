@@ -23,6 +23,10 @@ void Fan::setSpeed(uint16_t speed) {
     updateSpeed();
 }
 
+uint16_t Fan::getSpeed() {
+    return _speed;
+}
+
 /*
   speed   dutyCycle
   300rpm     150

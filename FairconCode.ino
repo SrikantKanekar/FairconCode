@@ -13,6 +13,7 @@ void checkState();
 void handleStableState();
 void handleTransitionState();
 void handleOverHeatingState();
+void updateParameters();
 
 Faircon faircon;
 Faircon previousData;
@@ -24,7 +25,7 @@ Tec tec;
 Fan fan;
 unsigned long currentMillis = 0;
 unsigned long previousMillis = 0;
-const long interval = 10000;
+const long interval = 5000;
 
 void setup(void) {
     Serial.begin(115200);
@@ -62,6 +63,7 @@ void handleFaircon() {
     handleStableState();
     handleTransitionState();
     handleOverHeatingState();
+    updateParameters();
 }
 
 // Executed everytime user changes the Mode.
@@ -164,4 +166,10 @@ void handleOverHeatingState() {
             }
         }
     }
+}
+
+void updateParameters() {
+    faircon.home.fanSpeed = fan.getSpeed();
+    faircon.home.temperature = sensor.roomValue();
+    faircon.home.tecVoltage = tec.getVoltage();
 }
