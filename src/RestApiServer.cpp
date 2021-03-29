@@ -16,12 +16,15 @@ void TEST_FAIRCON() {
 }
 
 void GET_Parameters() {
-    StaticJsonDocument<90> doc;
+    StaticJsonDocument<150> doc;
     String output;
 
     doc["fanSpeed"] = (*Data).home.fanSpeed;
-    doc["temperature"] = (*Data).home.temperature;
+    doc["roomTemperature"] = (*Data).home.roomTemperature;
     doc["tecVoltage"] = (*Data).home.tecVoltage;
+    doc["powerConsumption"] = (*Data).home.powerConsumption;
+    doc["heatExpelling"] = (*Data).home.heatExpelling;
+    doc["tecTemperature"] = (*Data).home.tecTemperature;
     doc["mode"] = (*Data).mode;
     doc["status"] = (*Data).status;
 

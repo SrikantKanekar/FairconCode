@@ -3,9 +3,12 @@
 
 // Values obtained from Sensors and Microcontroller, and displayed to the users in real time.
 struct Home {
-    uint16_t fanSpeed = 300;
-    float temperature = 15;
+    uint16_t fanSpeed = 0;
+    float roomTemperature = 15;
     float tecVoltage = 0;
+    uint16_t powerConsumption = 0;
+    uint16_t heatExpelling = 0;
+    float tecTemperature = 25;
 };
 
 // Controller is the object which can be configured by the user.

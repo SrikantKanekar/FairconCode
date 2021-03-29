@@ -170,6 +170,9 @@ void handleOverHeatingState() {
 
 void updateParameters() {
     faircon.home.fanSpeed = fan.getSpeed();
-    faircon.home.temperature = sensor.roomValue();
+    faircon.home.roomTemperature = sensor.roomValue();
     faircon.home.tecVoltage = tec.getVoltage();
+    faircon.home.powerConsumption = 10;
+    faircon.home.heatExpelling = 10;
+    faircon.home.tecTemperature = sensor.tecValue();
 }
